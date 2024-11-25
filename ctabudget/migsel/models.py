@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import User
+from user.models import User
 # Create your models here.
 
 
@@ -57,9 +57,6 @@ class MangyulProjectDetailForm(models.Model):
     project_activities_financial_year = models.TextField()
     receivable_amount_financial_year = models.IntegerField()
     expenditure_during_financial_year = models.IntegerField()
-    date = models.DateField()
-    user = models.ForeignKey(User,
-                             related_name='mangyul_project_details', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -79,8 +76,6 @@ class MangyulProjectSettlement(models.Model):
     settlement_name = models.CharField(max_length=255)
     currency_categories = models.CharField(max_length=150)
     amount = models.IntegerField()
-    user = models.ForeignKey(User, related_name='mangyul_project_settlement',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -96,6 +91,11 @@ class MangyulConstructionForm(models.Model):
         ("ཡོད།", "ཡོད།"),
         ("མེད།", "མེད།"),
     ]
+    accounts_head = models.CharField(max_length=255, null=True, blank=True)
+    accounts_head_surzar_one = models.CharField(
+        max_length=255, null=True, blank=True)
+    accounts_head_surzar_two = models.CharField(
+        max_length=255, null=True, blank=True)
     department_name = models.CharField(max_length=200)
     project_name_location = models.TextField()
     need_of_project = models.TextField()
@@ -109,8 +109,6 @@ class MangyulConstructionForm(models.Model):
         related_name="mangyul_project_construction_form",
         on_delete=models.CASCADE
     )
-    user = models.ForeignKey(User, related_name='mangyul_project_construction_form',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -118,23 +116,6 @@ class MangyulConstructionForm(models.Model):
 
     def __str__(self):
         return self.department_name
-
-
-class MangyulConstructionQuotation(models.Model):
-    name = models.CharField(max_length=100)
-    quotation = models.JSONField()
-    mangyul_project_detail = models.ForeignKey(
-        MangyulProjectDetailForm,
-        related_name="mangyul_project_construction_quotation",
-        on_delete=models.CASCADE
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.CharField(max_length=100)
-    updated_by = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
 
 
 class MangyulFurnitureForm(models.Model):
@@ -149,6 +130,11 @@ class MangyulFurnitureForm(models.Model):
         related_name="mangyul_project_furniture_form",
         on_delete=models.CASCADE
     )
+    accounts_head = models.CharField(max_length=255, null=True, blank=True)
+    accounts_head_surzar_one = models.CharField(
+        max_length=255, null=True, blank=True)
+    accounts_head_surzar_two = models.CharField(
+        max_length=255, null=True, blank=True)
     department_name = models.CharField(max_length=255)
     furniture_equipment = models.CharField(max_length=255)
     nature_needs = models.TextField()
@@ -157,9 +143,6 @@ class MangyulFurnitureForm(models.Model):
     )
     availability_description = models.TextField()
     total_project_budget = models.IntegerField()
-    date = models.DateField()
-    user = models.ForeignKey(related_name='mangyul_project_furniture',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -169,13 +152,19 @@ class MangyulFurnitureForm(models.Model):
         return self.department_name + '-' + self.furniture_equipment
 
 
-class MangyulFurnitureQuotation(models.Model):
+class MangyulQuotation(models.Model):
+    STATUS_CHOICES = [
+        ('CONSTRUCTION', 'Construction'),
+        ('FURNITURE', 'Furniture')
+    ]
 
-    name = models.CharField(max_length=100)
+    form_type = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default='CONSTRUCTION')
+    name = models.CharField(max_length=255)
     quotation = models.JSONField()
     mangyul_project_detail = models.ForeignKey(
         MangyulProjectDetailForm,
-        related_name="mangyul_furniture_quotation",
+        related_name="mangyul_construction_quotation",
         on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now_add=True)
@@ -195,8 +184,6 @@ class MangyulProjectFile(models.Model):
         on_delete=models.CASCADE
     )
     file_type = models.FileField(upload_to='migsel/')
-    user = models.ForeignKey(related_name='mangyul_project_file',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -206,30 +193,14 @@ class MangyulProjectFile(models.Model):
         return "File: " + str(self.file_type.name) if self.file_type else "No File"
 
 
-class MangyulProjectSurzarForm(models.Model):
-    project_head = models.CharField(max_length=255)
-    accounts_head = models.CharField(max_length=255)
-    two_years_prior_approved_budget = models.IntegerField()
-    two_years_prior_actual_income = models.IntegerField()
-    two_years_prior_balance = models.IntegerField()
-    previous_year_final_sanctioned_budget = models.IntegerField()
-    estimate_expenditure = models.IntegerField()
-    recommended_budget = models.IntegerField()
-    sanctioned_budget = models.IntegerField()
-    remarks = models.TextField()
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='mangyul_project_surzar_form',
-                             on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.CharField(max_length=100)
-    updated_by = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.accounts_head
-
-
 class MangyulProjectCoverForm(models.Model):
+    STATUS_CHOICES = [
+        ('SURZAR', 'Surzar'),
+        ('COVER', 'Cover')
+    ]
+
+    form_type = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default='SURZAR')
     accounts_head = models.CharField(max_length=255)
     two_years_prior_approved_budget = models.IntegerField()
     two_years_prior_actual_income = models.IntegerField()
@@ -239,9 +210,6 @@ class MangyulProjectCoverForm(models.Model):
     recommended_budget = models.IntegerField()
     sanctioned_budget = models.IntegerField()
     remarks = models.TextField()
-    date = models.DateField()
-    user = models.ForeignKey(related_name='mangyul_project_cover_form',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -286,24 +254,21 @@ class MangyulRecurringDetailForm(models.Model):
     budget_categories = models.CharField(
         max_length=255, choices=BUDGET_CHOICES, default="སྔོན་རྩིས་དམའ་དངུལ།"
     )
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='mangyul_recurring_detail_form',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
     updated_by = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.recurring_head
+        return self.accounts_head
 
 
 class MangyulRecurringAccountsHead(models.Model):
     accounts_head = models.CharField(max_length=255)
-    user = models.ForeignKey(User, related_name='mangyul_recurring_accounts_head',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.CharField(max_length=100)
+    updated_by = models.CharField(max_length=100)
 
     def __str__(self):
         return self.accounts_head
@@ -316,14 +281,11 @@ class MangyulRecurringForm(models.Model):
         on_delete=models.CASCADE
     )
     budget_amount = models.IntegerField()
-    note = models.CharField(max_length=255)
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='mangyul_recurring_form',
-                             on_delete=models.CASCADE)
+    remarks = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
     updated_by = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.budget_amount + "-" + self.note
+        return self.budget_amount + "-" + self.remarks

@@ -67,9 +67,6 @@ class SurkolProjectDetailForm(models.Model):
     expenditure_during_financial_year = models.IntegerField()
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default="PENDING")
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='surkol_project_detail',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -89,9 +86,6 @@ class SurkolProjectSettlement(models.Model):
     settlement_name = models.CharField(max_length=255)
     currency_categories = models.CharField(max_length=150)
     amount = models.IntegerField()
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='surkol_project_settlement',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -107,7 +101,11 @@ class SurkolConstructionForm(models.Model):
         ("ཡོད།", "ཡོད།"),
         ("མེད།", "མེད།"),
     ]
-
+    accounts_head = models.CharField(max_length=255, null=True, blank=True)
+    accounts_head_surzar_one = models.CharField(
+        max_length=255, null=True, blank=True)
+    accounts_head_surzar_two = models.CharField(
+        max_length=255, null=True, blank=True)
     department_name = models.CharField(max_length=200)
     project_name_location = models.TextField()
     need_of_project = models.TextField()
@@ -118,12 +116,9 @@ class SurkolConstructionForm(models.Model):
     project_total_budget = models.IntegerField()
     surkol_project_detail = models.ForeignKey(
         SurkolProjectDetailForm,
-        related_name="surkol_project_construction_form",
+        related_name="surkol_construction_form",
         on_delete=models.CASCADE
     )
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='surkol_project_construction_form',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -131,24 +126,6 @@ class SurkolConstructionForm(models.Model):
 
     def __str__(self):
         return self.department_name
-
-
-class SurkolConstructionQuotation(models.Model):
-
-    name = models.CharField(max_length=100)
-    quotation = models.JSONField()
-    surkol_project_detail = models.ForeignKey(
-        SurkolProjectDetailForm,
-        related_name="surkol_project_construction_quotation",
-        on_delete=models.CASCADE
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.CharField(max_length=100)
-    updated_by = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
 
 
 class SurkolFurnitureForm(models.Model):
@@ -163,6 +140,11 @@ class SurkolFurnitureForm(models.Model):
         related_name="surkol_project_furniture_form",
         on_delete=models.CASCADE
     )
+    accounts_head = models.CharField(max_length=255, null=True, blank=True)
+    accounts_head_surzar_one = models.CharField(
+        max_length=255, null=True, blank=True)
+    accounts_head_surzar_two = models.CharField(
+        max_length=255, null=True, blank=True)
     department_name = models.CharField(max_length=255)
     furniture_equipment = models.CharField(max_length=255)
     nature_needs = models.TextField()
@@ -171,9 +153,6 @@ class SurkolFurnitureForm(models.Model):
     )
     availability_description = models.TextField()
     total_project_budget = models.IntegerField()
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='surkol_project_furniture',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -183,13 +162,17 @@ class SurkolFurnitureForm(models.Model):
         return self.department_name + '-' + self.furniture_equipment
 
 
-class SurkolFurnitureQuotation(models.Model):
-
-    name = models.CharField(max_length=255)
+class SurkolQuotation(models.Model):
+    STATUS_CHOICES = [
+        ('CONSTRUCTION', 'Construction'),
+        ('FURNITURE', 'Furniture')
+    ]
+    form_type = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default='CONSTRUCTION')
     quotation = models.JSONField()
     surkol_project_detail = models.ForeignKey(
         SurkolProjectDetailForm,
-        related_name="surkol_project_construction_quotation",
+        related_name="surkol_quotation",
         on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now_add=True)
@@ -209,9 +192,6 @@ class SurkolProjectFile(models.Model):
         on_delete=models.CASCADE
     )
     file_type = models.FileField(upload_to='surkol-project/')
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='surkol_project_file',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -221,8 +201,14 @@ class SurkolProjectFile(models.Model):
         return "File: " + str(self.file_type.name) if self.file_type else "No File"
 
 
-class SurkolProjectSurzarForm(models.Model):
-    project_head = models.CharField(max_length=255)
+class SurkolProjectCoverForm(models.Model):
+    STATUS_CHOICES = [
+        ('SURZAR', 'Surzar'),
+        ('COVER', 'Cover')
+    ]
+
+    form_type = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default='SURZAR')
     accounts_head = models.CharField(max_length=255)
     three_years_prior_opening_balance = models.IntegerField()
     two_years_prior_actual_income = models.IntegerField()
@@ -235,9 +221,6 @@ class SurkolProjectSurzarForm(models.Model):
     recommended_budget = models.IntegerField()
     sanctioned_budget = models.IntegerField()
     remarks = models.TextField()
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='surkol_project_surzar_form',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -299,16 +282,13 @@ class SurkolRecurringDetailForm(models.Model):
     )
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default="PENDING")
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='surkol_recurring_details',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
     updated_by = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.recurring_head
+        return self.accounts_head
 
 
 class SurkolRecurringSettlement(models.Model):
@@ -320,9 +300,6 @@ class SurkolRecurringSettlement(models.Model):
     settlement_name = models.CharField(max_length=255)
     currency_categories = models.CharField(max_length=150)
     amount = models.IntegerField()
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='surkol_recurring_settlement',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -334,8 +311,6 @@ class SurkolRecurringSettlement(models.Model):
 
 class SurkolRecurringAccountsHead(models.Model):
     accounts_head = models.CharField(max_length=255)
-    user = models.ForeignKey(User, related_name='surkol_recurring_accounts_head',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -350,14 +325,11 @@ class SurkolRecurringForm(models.Model):
         on_delete=models.CASCADE
     )
     budget_amount = models.IntegerField()
-    note = models.CharField(max_length=255)
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='surkol_recurring_form',
-                             on_delete=models.CASCADE)
+    remarks = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
     updated_by = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.budget_amount + "-" + self.note
+        return self.budget_amount + "-" + self.remarks

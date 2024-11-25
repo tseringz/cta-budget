@@ -67,9 +67,6 @@ class BhargyalProjectDetailForm(models.Model):
     project_activities_financial_year = models.TextField()
     receivable_amount_financial_year = models.IntegerField()
     expenditure_during_financial_year = models.IntegerField()
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='bhargyal_project_detail',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -89,9 +86,6 @@ class BhargyalProjectSettlement(models.Model):
     settlement_name = models.CharField(max_length=255)
     currency_categories = models.CharField(max_length=150)
     amount = models.IntegerField()
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='bhargyal_project_settlement',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -107,7 +101,7 @@ class BhargyalConstructionForm(models.Model):
         ("ཡོད།", "ཡོད།"),
         ("མེད།", "མེད།"),
     ]
-
+    accounts_head = models.CharField(max_length=255)
     department_name = models.CharField(max_length=200)
     project_name_location = models.TextField()
     need_of_project = models.TextField()
@@ -121,9 +115,6 @@ class BhargyalConstructionForm(models.Model):
         related_name="bhargyal_project_construction_form",
         on_delete=models.CASCADE
     )
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='bhargyal_construction_form',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -131,26 +122,6 @@ class BhargyalConstructionForm(models.Model):
 
     def __str__(self):
         return self.department_name
-
-
-class BhargyalConstructionQuotation(models.Model):
-
-    construction_form = models.ForeignKey(
-        BhargyalConstructionForm,
-        related_name="bhargyal_construction_form",
-        on_delete=models.CASCADE
-    )
-    name = models.CharField(max_length=100)
-    quotation = models.JSONField()
-    user = models.ForeignKey(User, related_name='bhargyal_construction_quotation',
-                             on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.CharField(max_length=100)
-    updated_by = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
 
 
 class BhargyalFurnitureForm(models.Model):
@@ -173,9 +144,6 @@ class BhargyalFurnitureForm(models.Model):
     )
     availability_description = models.TextField()
     total_project_budget = models.IntegerField()
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='bhargyal_furniture_form',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -185,22 +153,22 @@ class BhargyalFurnitureForm(models.Model):
         return self.department_name
 
 
-class BhargyalFurnitureQuotation(models.Model):
-
-    UNION_CHOICES = [
-        ("ཡོད།", "ཡོད།"),
-        ("མེད།", "མེད།"),
+class BhargyalQuotation(models.Model):
+    STATUS_CHOICES = [
+        ('CONSTRUCTION', 'Construction'),
+        ('FURNITURE', 'Furniture'),
+        ('LOBUR', 'Lobur')
     ]
 
-    furniture_form = models.ForeignKey(
-        BhargyalFurnitureForm,
-        related_name="bhargyal_project_details_furniture_quotation",
+    form_type = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default='CONSTRUCTION')
+    name = models.CharField(max_length=255)
+    quotation = models.JSONField()
+    bhargyal_project_detail = models.ForeignKey(
+        BhargyalProjectDetailForm,
+        related_name="bhargyal_quotation",
         on_delete=models.CASCADE
     )
-    name = models.CharField(max_length=100)
-    quotation = models.JSONField()
-    user = models.ForeignKey(User, related_name='bhargyal_furiture_quotation',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -225,9 +193,6 @@ class BhargyalLoburForm(models.Model):
     project_aims = models.TextField()
     project_description = models.TextField()
     fund_source = models.CharField(max_length=10, choices=SOURCE_CHOICES)
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='bhargyal_lobour',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -237,26 +202,6 @@ class BhargyalLoburForm(models.Model):
         return self.project_aims
 
 
-class BhargyalLoburQuotationForm(models.Model):
-
-    lobur_form = models.ForeignKey(
-        BhargyalLoburForm,
-        related_name="bhargyal_project_details_quotation_form",
-        on_delete=models.CASCADE
-    )
-    name = models.CharField(max_length=100)
-    quotation = models.JSONField()
-    user = models.ForeignKey(User, related_name='bhargyal_lobur_quotation',
-                             on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.CharField(max_length=100)
-    updated_by = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.budget_expenditure
-
-
 class BhargyalProjectFile(models.Model):
     bhargyal_project_detail = models.ForeignKey(
         BhargyalProjectDetailForm,
@@ -264,9 +209,6 @@ class BhargyalProjectFile(models.Model):
         on_delete=models.CASCADE
     )
     file_type = models.FileField(upload_to='bhargyal-project/')
-    date = models.DateField()
-    user = models.ForeignKey(User, related_name='bhargyal_project_file',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)

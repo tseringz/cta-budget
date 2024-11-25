@@ -31,8 +31,6 @@ class DebitForm(models.Model):
     respected_signature = models.CharField(max_length=100)
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default="PENDING")
-    user = models.ForeignKey(User, related_name='debit_form',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
@@ -69,8 +67,6 @@ class CreditForm(models.Model):
     respected_signature = models.CharField(max_length=100)
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default="PENDING")
-    user = models.ForeignKey(User, related_name='credit_form',
-                             on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.CharField(max_length=100)
