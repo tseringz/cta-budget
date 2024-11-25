@@ -161,7 +161,7 @@ class BhargyalQuotation(models.Model):
     ]
 
     form_type = models.CharField(
-        max_length=10, choices=STATUS_CHOICES, default='CONSTRUCTION')
+        max_length=100, choices=STATUS_CHOICES, default='CONSTRUCTION')
     name = models.CharField(max_length=255)
     quotation = models.JSONField()
     bhargyal_project_detail = models.ForeignKey(

@@ -159,7 +159,7 @@ class MangyulQuotation(models.Model):
     ]
 
     form_type = models.CharField(
-        max_length=10, choices=STATUS_CHOICES, default='CONSTRUCTION')
+        max_length=100, choices=STATUS_CHOICES, default='CONSTRUCTION')
     name = models.CharField(max_length=255)
     quotation = models.JSONField()
     mangyul_project_detail = models.ForeignKey(
@@ -200,7 +200,7 @@ class MangyulProjectCoverForm(models.Model):
     ]
 
     form_type = models.CharField(
-        max_length=10, choices=STATUS_CHOICES, default='SURZAR')
+        max_length=100, choices=STATUS_CHOICES, default='SURZAR')
     accounts_head = models.CharField(max_length=255)
     two_years_prior_approved_budget = models.IntegerField()
     two_years_prior_actual_income = models.IntegerField()

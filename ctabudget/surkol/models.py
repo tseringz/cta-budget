@@ -168,7 +168,7 @@ class SurkolQuotation(models.Model):
         ('FURNITURE', 'Furniture')
     ]
     form_type = models.CharField(
-        max_length=10, choices=STATUS_CHOICES, default='CONSTRUCTION')
+        max_length=100, choices=STATUS_CHOICES, default='CONSTRUCTION')
     quotation = models.JSONField()
     surkol_project_detail = models.ForeignKey(
         SurkolProjectDetailForm,
@@ -208,7 +208,7 @@ class SurkolProjectCoverForm(models.Model):
     ]
 
     form_type = models.CharField(
-        max_length=10, choices=STATUS_CHOICES, default='SURZAR')
+        max_length=100, choices=STATUS_CHOICES, default='SURZAR')
     accounts_head = models.CharField(max_length=255)
     three_years_prior_opening_balance = models.IntegerField()
     two_years_prior_actual_income = models.IntegerField()

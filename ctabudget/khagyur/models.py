@@ -8,7 +8,7 @@ class KhagyurProjectCoverForm(models.Model):
     ]
 
     form_type = models.CharField(
-        max_length=10, choices=STATUS_CHOICES, default='surzar')
+        max_length=100, choices=STATUS_CHOICES, default='surzar')
     accounts_head_expenditure = models.CharField(max_length=255)
     approval_request_income_expenditure = models.IntegerField()
     approval_request_expenditure_expenditure = models.IntegerField()

@@ -1,0 +1,16 @@
+venv/
+debitform/__pycache__/
+khagyur/__pycache__/
+migsel/__pycache__/
+surkol/__pycache__/
+*/venv/
+user/migrations/*
+bhargyal/__pycache__/
+bhargyal/migrations
+debitform/migrations
+khagyur/migrations
+surkol/migrations
+user/__pycache__/
+migsel/migrations
+ctabudget/__pycache__/
+venv/
